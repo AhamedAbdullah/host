@@ -1,0 +1,170 @@
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js
+">
+
+</script>
+<script>
+
+
+//Register event listener 
+window.addEventListener("message", function(e){
+		if (e.data.event && e.data.event === "lcmImageLoadingStatus") {
+			if (e.data.description === "SUCCESS") {
+				handleLcmCardLoadingSuccess(e.data);
+			} else {
+				handleLcmCardLoadingError(e.data);
+			}
+		}
+});
+
+function post() {
+
+	console.log('called....');
+		
+	const imageInput = document.getElementById('imageId').value;
+	const sessionInput = document.getElementById('sessionId').value;
+	const correlationId = document.getElementById("correlationId").value;
+		
+			
+	let win = document.getElementById('frameId');
+
+	const session = sessionHash(sessionInput, imageInput)
+	const jsonData = {imageId : imageInput, sessionId : session, correlationId : correlationId};
+	console.log('sending input : ' + JSON.stringify(jsonData));
+	
+  	win.contentWindow.window.postMessage(JSON.stringify(jsonData), "*");
+	
+	//let spinner = document.getElementById("spinnerId").style;
+	$('$spinnerId').style="display:block";
+	
+	
+	
+}
+
+function handleLcmCardLoadingSuccess(data) {
+  console.log("LcmCardLoadingSuccess handler invoked", data);
+}
+
+function handleLcmCardLoadingError(data) {
+  console.log("LcmCardLoadingError handler invoked", data);
+}
+
+
+function test () {
+
+	console.log("test() method");
+	
+	const imageInput = document.getElementById('imageId').value;
+	const sessionInput = document.getElementById('sessionId').value;
+	
+	let content = document.getElementById("frameId").contentWindow;
+	content.setAttribute('crossorigin', 'Access-Control-Allow-Origin'); 
+	
+	const session = sessionHash(sessionInput, imageInput)
+
+	window.parent.document.getElementById('frameId').contentWindow.setDetails(imageInput, session);
+}
+
+function sessionHash(appsession, imageId) {
+	
+	debugger;
+	
+	var hmac = forge.hmac.create();
+    hmac.start("sha256", appsession + imageId);
+    hmac.update(appsession);
+    hmac.update(imageId)
+    var sessionHash = hmac.digest().toHex();
+	console.log("session hash : " + sessionHash)
+	return sessionHash;
+}
+
+  
+function getStatus() {
+
+	console.log('i called...');
+	
+	let win = document.getElementById('frameId').contentWindow;
+	win.window.postMessage("card_status", "*");
+}
+
+
+
+function callBackMsgHere (data) {
+	console.log("calledback got response : "+ data);
+}
+
+// function ikanoMessage() {
+// let win = document.getElementById('frameId').contentWindow;
+// win.window.addEventListener("message", function(event){
+	
+// 	console.log("event data : "+ event.data);
+
+// 	switch(event.data) {
+	
+// 	case "success" :
+// 		console.log("success");
+// 		break;
+		
+// 	case "error" : 
+// 		console.log("lcm error");
+// 		break;
+		
+// 	default :
+// 		console.log(event.data);
+	
+// 	}
+// });
+// }
+
+// setInterval(ikanoMessage, 1000);
+  
+</script>
+
+
+</head>
+
+<body onload = "post()">
+
+<div class="container p-4 my-4 border">
+
+
+	<div class="form-group">
+		<label for="imageId">Image Id:</label>
+		<input type="text" class="form-control" placeholder="Enter Image Id" id="imageId" required/>
+	</div>
+	<div class="form-group">
+		<label for="sessionId">Session Id:</label>
+		<input type="text" class="form-control" placeholder="Enter Session Id" id="sessionId" required/>
+	</div>
+	
+	<div class="form-group">
+		<label for="cid">Correlation Id:</label>
+		<input type="text" class="form-control" placeholder="Enter Correlation Id" id="correlationId" required/>
+	</div>
+
+	<div class="input-group mb-2">
+		<button type="button" class="btn btn-outline-primary" onclick="post()">Get Image</button>&nbsp;
+	</div>
+	
+			
+
+	<iframe src="https://nets-lcm-virtualcard-interface-lcm-demo.lcm.paas-test.bbsas.no/lcm/v1/vcard" onload= "" id="frameId" height="50%" width="100%" style="border:2px solid black;" >
+	<!--https://nets-lcm-virtualcard-interface-lcm-t.lcm.paas-test.bbsas.no/lcm/vcard-->
+	<!--https://nets-lcm-virtualcard-interface-lcm-demo.lcm.paas-test.bbsas.no/lcm/v1/vcard-->
+	<!--https://nets-lcm-virtualcard-interface-lcm-pp.lcm.paas-test.bbsas.no/lcm/v1/vcard-->
+	<!--https://lcmapi-test.nets.eu/lcm/v1/vcard-->
+	<!--https://lcmapi-test.nets.eu/lcm/v1/vcard-->
+	<!--https://nets-lcm-virtualcard-interface-lcm-t.lcm.paas-test.bbsas.no-->
+	<!--http://localhost:8081/lcm/v1/vco-->
+
+</div>
+
+</body>
+
+
+</html>
+
